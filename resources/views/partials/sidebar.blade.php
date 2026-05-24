@@ -97,27 +97,6 @@
     </li>
     @endcan
 
-    @php
-        $expiryCount = \App\Models\StockInItem::where('balance_quantity', '>', 0)
-            ->where(function($q) {
-                $q->where('expiry_date', '<', \Carbon\Carbon::today())
-                  ->orWhere(function($q2) {
-                      $q2->where('expiry_date', '>=', \Carbon\Carbon::today())
-                         ->where('expiry_date', '<=', \Carbon\Carbon::today()->addDays(30));
-                  });
-            })->count();
-    @endphp
-    <li class="nav-item">
-        <a href="{{ route('expiry.index') }}"
-           class="nav-link px-3 py-2 sidebar-link d-flex align-items-center {{ request()->routeIs('expiry.*') ? 'active' : '' }}">
-            <i class="bi bi-calendar-exclamation me-2"></i>
-            <span>Expiry Management</span>
-            @if($expiryCount > 0)
-                <span class="badge rounded-pill ms-auto {{ request()->routeIs('expiry.*') ? 'bg-danger' : 'bg-warning text-dark' }}">{{ $expiryCount }}</span>
-            @endif
-        </a>
-    </li>
-
     @can('inbound-list')
     <li class="nav-item">
         <a href="{{ route('inbound.index') }}"
@@ -138,6 +117,28 @@
     </li>
     @endcan
     @endcanany
+
+    {{-- Expiry Management --}}
+    @php
+        $expiryCount = \App\Models\StockInItem::where('balance_quantity', '>', 0)
+            ->where(function($q) {
+                $q->where('expiry_date', '<', \Carbon\Carbon::today())
+                  ->orWhere(function($q2) {
+                      $q2->where('expiry_date', '>=', \Carbon\Carbon::today())
+                         ->where('expiry_date', '<=', \Carbon\Carbon::today()->addDays(30));
+                  });
+            })->count();
+    @endphp
+    <li class="nav-item mt-1">
+        <a href="{{ route('expiry.index') }}"
+           class="nav-link px-3 py-2 sidebar-link d-flex align-items-center {{ request()->routeIs('expiry.*') ? 'active' : '' }}">
+            <i class="bi bi-calendar-exclamation me-2"></i>
+            <span>Expiry Management</span>
+            @if($expiryCount > 0)
+                <span class="badge rounded-pill ms-auto {{ request()->routeIs('expiry.*') ? 'bg-danger' : 'bg-warning text-dark' }}">{{ $expiryCount }}</span>
+            @endif
+        </a>
+    </li>
 
     {{-- Parties / Logistics --}}
     @canany(['vendor-list', 'customer-list', 'transporter-list', 'arrived-from-list'])

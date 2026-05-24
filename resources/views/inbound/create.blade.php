@@ -99,7 +99,7 @@
                     </div>
 
                     <div class="col-md-2 mb-2">
-                        <label class="form-label">Dispatched Invoice No</label>
+                        <label class="form-label">Inbound Invoice No</label>
                         <input name="dispatched_invoice_no" value="{{ $nextDispatchedInvoiceNo ?? '' }}" class="form-control form-control-sm" readonly>
                     </div>
 

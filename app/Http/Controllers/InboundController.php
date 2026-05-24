@@ -392,7 +392,7 @@ class InboundController extends Controller
     public function edit(StockIn $stockIn)
     {
         return view('inbound.edit', [
-            'stockIn' => $stockIn->load(['warehouse', 'vendor', 'transporter', 'arrivedFrom']),
+            'stockIn' => $stockIn->load(['warehouse', 'vendor', 'transporter', 'arrivedFrom', 'items.product']),
             'warehouses' => Warehouse::where('status', 1)->orderBy('name')->get(),
             'vendors' => Vendor::where('status', 1)->orderBy('name')->get(),
             'transporters' => Transporter::where('status', 1)->orderBy('name')->get(),

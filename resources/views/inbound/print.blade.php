@@ -32,8 +32,6 @@
     <tr>
         <td><strong>Inbound Invoice No</strong></td>
         <td>{{ $stockIn->inbound_invoice_no ?? '-' }}</td>
-        <td><strong>Dispatched Invoice No</strong></td>
-        <td>{{ $stockIn->dispatched_invoice_no ?? '-' }}</td>
     </tr>
     <tr>
         <td><strong>Warehouse</strong></td>
