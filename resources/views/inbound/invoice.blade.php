@@ -56,8 +56,7 @@
                 <th>Inbound Invoice No</th>
                 <td>{{ $stockIn->inbound_invoice_no ?? '-' }}</td>
 
-                {{-- <th>Dispatched Invoice No</th>
-                <td>{{ $stockIn->dispatched_invoice_no ?? '-' }}</td> --}}
+               
             </tr>
 
             <tr>
@@ -122,16 +121,6 @@
             </tr>
 
             <tr>
-                <th>PO / IBD / STO</th>
-                <td colspan="3">
-                    PO: {{ $stockIn->po_no ?? '-' }}
-                    &nbsp;|&nbsp; IBD: {{ $stockIn->ibd_no ?? '-' }}
-                    &nbsp;|&nbsp; STO: {{ $stockIn->sto_no ?? '-' }}
-                    &nbsp;|&nbsp; Shipment: {{ $stockIn->shipment_no ?? '-' }}
-                </td>
-            </tr>
-
-            <tr>
                 <th>Remarks</th>
                 <td colspan="3">{{ $stockIn->remarks ?? '-' }}</td>
             </tr>
@@ -145,11 +134,6 @@
                     <th>Description</th>
                     <th>SAP Batch</th>
                     <th>Vendor Batch</th>
-                    <th>Delivery No</th>
-                    <th>Shipment</th>
-                    <th>STO</th>
-                    <th>PO</th>
-                    <th>IBD</th>
                     <th>MFG</th>
                     <th>Expiry</th>
                     <th>Pack</th>
@@ -169,11 +153,6 @@
                         <td>{{ $item->product->name ?? '-' }} ({{ $item->product->item_code ?? '-' }})</td>
                         <td>{{ $item->sap_batch ?? '-' }}</td>
                         <td>{{ $item->vendor_batch ?? '-' }}</td>
-                        <td>{{ $stockIn->delivery_no ?? '-' }}</td>
-                        <td>{{ $stockIn->shipment_no ?? '-' }}</td>
-                        <td>{{ $stockIn->sto_no ?? '-' }}</td>
-                        <td>{{ $item->po_no ?? $stockIn->po_no ?? '-' }}</td>
-                        <td>{{ $item->ibd_no ?? $stockIn->ibd_no ?? '-' }}</td>
                         <td>{{ optional($item->mfg_date)->format('d.m.Y') }}</td>
                         <td>{{ optional($item->expiry_date)->format('d.m.Y') }}</td>
                         <td class="text-end">{{ $item->pack_size_snapshot }}</td>
@@ -186,9 +165,9 @@
                 @endforeach
 
                 <tr class="fw-bold">
-                    <td colspan="12" class="text-end">TOTAL</td>
+                    <td colspan="8" class="text-end">TOTAL</td>
                     <td class="text-end">{{ $totalQty }}</td>
-                    <td colspan="4"></td>
+                    <td colspan="3"></td>
                 </tr>
             </tbody>
         </table>

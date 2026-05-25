@@ -67,15 +67,6 @@
         </td>
     </tr>
     <tr>
-        <td><strong>PO / IBD / STO</strong></td>
-        <td colspan="3">
-            PO: {{ $stockIn->po_no ?? '-' }}
-            &nbsp;|&nbsp; IBD: {{ $stockIn->ibd_no ?? '-' }}
-            &nbsp;|&nbsp; STO: {{ $stockIn->sto_no ?? '-' }}
-            &nbsp;|&nbsp; Shipment: {{ $stockIn->shipment_no ?? '-' }}
-        </td>
-    </tr>
-    <tr>
         <td><strong>Dispatcher / Picker</strong></td>
         <td colspan="3">
             Dispatcher: {{ $stockIn->dispatcher_sig ?? '-' }}
