@@ -134,6 +134,11 @@
                     <th>Description</th>
                     <th>SAP Batch</th>
                     <th>Vendor Batch</th>
+                    <th>Delivery No</th>
+                    <th>Shipment</th>
+                    <th>STO</th>
+                    <th>PO</th>
+                    <th>IBD</th>
                     <th>MFG</th>
                     <th>Expiry</th>
                     <th>Pack</th>
@@ -153,6 +158,11 @@
                         <td>{{ $item->product->name ?? '-' }} ({{ $item->product->item_code ?? '-' }})</td>
                         <td>{{ $item->sap_batch ?? '-' }}</td>
                         <td>{{ $item->vendor_batch ?? '-' }}</td>
+                        <td>{{ $stockIn->delivery_no ?? '-' }}</td>
+                        <td>{{ $stockIn->shipment_no ?? '-' }}</td>
+                        <td>{{ $stockIn->sto_no ?? '-' }}</td>
+                        <td>{{ $item->po_no ?? $stockIn->po_no ?? '-' }}</td>
+                        <td>{{ $item->ibd_no ?? $stockIn->ibd_no ?? '-' }}</td>
                         <td>{{ optional($item->mfg_date)->format('d.m.Y') }}</td>
                         <td>{{ optional($item->expiry_date)->format('d.m.Y') }}</td>
                         <td class="text-end">{{ $item->pack_size_snapshot }}</td>
@@ -165,9 +175,9 @@
                 @endforeach
 
                 <tr class="fw-bold">
-                    <td colspan="8" class="text-end">TOTAL</td>
+                    <td colspan="12" class="text-end">TOTAL</td>
                     <td class="text-end">{{ $totalQty }}</td>
-                    <td colspan="3"></td>
+                    <td colspan="4"></td>
                 </tr>
             </tbody>
         </table>
