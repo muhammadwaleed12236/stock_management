@@ -56,8 +56,8 @@
                 <th>Inbound Invoice No</th>
                 <td>{{ $stockIn->inbound_invoice_no ?? '-' }}</td>
 
-                <th>Dispatched Invoice No</th>
-                <td>{{ $stockIn->dispatched_invoice_no ?? '-' }}</td>
+                {{-- <th>Dispatched Invoice No</th>
+                <td>{{ $stockIn->dispatched_invoice_no ?? '-' }}</td> --}}
             </tr>
 
             <tr>
@@ -166,7 +166,7 @@
                     @php $totalQty += (float) ($item->total_quantity ?? 0); @endphp
                     <tr>
                         <td>{{ $item->product->item_code ?? '-' }}</td>
-                        <td>{{ $item->product->name ?? '-' }}</td>
+                        <td>{{ $item->product->name ?? '-' }} ({{ $item->product->item_code ?? '-' }})</td>
                         <td>{{ $item->sap_batch ?? '-' }}</td>
                         <td>{{ $item->vendor_batch ?? '-' }}</td>
                         <td>{{ $stockIn->delivery_no ?? '-' }}</td>

@@ -206,8 +206,6 @@
                     <div class="col-md-4"><label>SAP</label><input class="form-control form-control-sm modal-sap"></div>
                     <div class="col-md-4"><label>Vendor Batch</label><input class="form-control form-control-sm modal-vendor">
                     </div>
-                    <div class="col-md-4"><label>IBD/OBD</label><input class="form-control form-control-sm modal-ibd"></div>
-                    <div class="col-md-4"><label>PO/Shipment</label><input class="form-control form-control-sm modal-po"></div>
                     <div class="col-md-4"><label>MFG</label><input type="date"
                             class="form-control form-control-sm modal-mfg"></div>
                     <div class="col-md-4"><label>EXP</label><input type="date"
@@ -402,9 +400,6 @@
                     .value;
                 activeRow.querySelector('[name$="[vendor_batch]"]').value = document.querySelector(
                     '.modal-vendor').value;
-                activeRow.querySelector('[name$="[ibd_no]"]').value = document.querySelector('.modal-ibd')
-                    .value;
-                activeRow.querySelector('[name$="[po_no]"]').value = document.querySelector('.modal-po').value;
                 activeRow.querySelector('[name$="[mfg_date]"]').value = document.querySelector('.modal-mfg')
                     .value;
                 activeRow.querySelector('[name$="[expiry_date]"]').value = document.querySelector(

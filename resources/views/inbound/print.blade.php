@@ -105,7 +105,7 @@
     <tr>
         <td class="center">{{ $loop->iteration }}</td>
         <td>
-            {{ optional($it->product)->item_code ? optional($it->product)->item_code.' - ' : '' }}{{ optional($it->product)->name ?? '-' }}
+            {{ optional($it->product)->name ?? '-' }}{{ optional($it->product)->item_code ? ' ('.optional($it->product)->item_code.')' : '' }}
         </td>
         <td>{{ $it->sap_batch ?? '-' }}</td>
         <td>{{ $it->vendor_batch ?? '-' }}</td>
