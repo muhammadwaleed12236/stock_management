@@ -291,7 +291,7 @@
             @foreach($stockIn->items as $i => $item)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $item->product->name ?? '-' }}</td>
+                <td>{{ $item->product->name ?? '-' }}{{ $item->product->item_code ? ' ('.$item->product->item_code.')' : '' }}</td>
                 <td>{{ $item->sap_batch ?? '-' }}</td>
                 <td>{{ $item->vendor_batch ?? '-' }}</td>
                 <td>{{ $item->po_no ?? '-' }}</td>
