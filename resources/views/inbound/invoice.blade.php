@@ -130,8 +130,7 @@
                     <th>STO</th>
                     <th>PO</th>
                     <th>IBD</th>
-                    <th>MFG</th>
-                    <th>Expiry</th>
+                    <th>MFG / EXP</th>
                     <th>Pack</th>
                     <th>Units</th>
                     <th>Total Qty</th>
@@ -154,8 +153,7 @@
                         <td>{{ $stockIn->sto_no ?? '-' }}</td>
                         <td>{{ $item->po_no ?? $stockIn->po_no ?? '-' }}</td>
                         <td>{{ $item->ibd_no ?? $stockIn->ibd_no ?? '-' }}</td>
-                        <td>{{ optional($item->mfg_date)->format('d.m.Y') }}</td>
-                        <td>{{ optional($item->expiry_date)->format('d.m.Y') }}</td>
+                        <td>{{ optional($item->mfg_date)->format('d.m.Y') }} / {{ optional($item->expiry_date)->format('d.m.Y') }}</td>
                         <td class="text-end">{{ $item->pack_size_snapshot }}</td>
                         <td class="text-end">{{ $item->units_received ?? 0 }}</td>
                         <td class="text-end fw-bold">{{ $item->total_quantity ?? 0 }}</td>
@@ -166,7 +164,7 @@
                 @endforeach
 
                 <tr class="fw-bold">
-                    <td colspan="12" class="text-end">TOTAL</td>
+                    <td colspan="11" class="text-end">TOTAL</td>
                     <td class="text-end">{{ $totalQty }}</td>
                     <td colspan="4"></td>
                 </tr>
@@ -211,4 +209,8 @@
     table { font-size:12px }
 }
 </style>
+
+@if(request('print'))
+<script>window.onload = function() { window.print(); }</script>
+@endif
 @endsection

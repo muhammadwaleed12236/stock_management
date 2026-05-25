@@ -177,40 +177,6 @@
                 <span class="info-label">Inbound Invoice No:</span>
                 <span class="info-value">{{ $stockIn->inbound_invoice_no ?? '-' }}</span>
             </div>
-            <div class="info-cell">
-                <span class="info-label">Dispatched Invoice No:</span>
-                <span class="info-value">{{ $stockIn->dispatched_invoice_no ?? '-' }}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell">
-                <span class="info-label">PO Number:</span>
-                <span class="info-value">{{ $stockIn->po_no ?? '-' }}</span>
-            </div>
-            <div class="info-cell">
-                <span class="info-label">IBD Number:</span>
-                <span class="info-value">{{ $stockIn->ibd_no ?? '-' }}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell">
-                <span class="info-label">Shipment Number:</span>
-                <span class="info-value">{{ $stockIn->shipment_no ?? '-' }}</span>
-            </div>
-            <div class="info-cell">
-                <span class="info-label">STO Number:</span>
-                <span class="info-value">{{ $stockIn->sto_no ?? '-' }}</span>
-            </div>
-        </div>
-        <div class="info-row">
-            <div class="info-cell">
-                <span class="info-label">Delivery Number:</span>
-                <span class="info-value">{{ $stockIn->delivery_no ?? '-' }}</span>
-            </div>
-            <div class="info-cell">
-                <span class="info-label">Shipment Type:</span>
-                <span class="info-value">{{ $stockIn->shipment_type ?? '-' }}</span>
-            </div>
         </div>
     </div>
 
@@ -316,8 +282,7 @@
                 <th style="width: 50px;" class="text-center">Units</th>
                 <th style="width: 50px;" class="text-center">Pack Size</th>
                 <th style="width: 70px;" class="text-center">Total Qty</th>
-                <th style="width: 70px;" class="text-center">Mfg Date</th>
-                <th style="width: 70px;" class="text-center">Expiry Date</th>
+                <th style="width: 100px;" class="text-center">MFG / EXP</th>
                 <th style="width: 60px;" class="text-center">QC Status</th>
                 <th style="width: 80px;" class="text-center">Stock Duration</th>
             </tr>
@@ -334,8 +299,7 @@
                 <td class="text-center">{{ number_format($item->units_received) }}</td>
                 <td class="text-center">{{ $item->pack_size_snapshot ?? '-' }}</td>
                 <td class="text-center">{{ number_format($item->total_quantity, 2) }}</td>
-                <td class="text-center">{{ $item->mfg_date ? \Carbon\Carbon::parse($item->mfg_date)->format('d M Y') : '-' }}</td>
-                <td class="text-center">{{ $item->expiry_date ? \Carbon\Carbon::parse($item->expiry_date)->format('d M Y') : '-' }}</td>
+                <td class="text-center">{{ $item->mfg_date ? \Carbon\Carbon::parse($item->mfg_date)->format('d.m.Y') : '-' }} / {{ $item->expiry_date ? \Carbon\Carbon::parse($item->expiry_date)->format('d.m.Y') : '-' }}</td>
                 <td class="text-center">
                     @if($item->quality_clearance == 'pending')
                         <span class="badge badge-pending">PENDING</span>
@@ -369,7 +333,7 @@
             @if($item->remarks || $item->warehouse_row_id || $item->use_pallets)
             <tr>
                 <td></td>
-                <td colspan="13" style="font-size: 9px; color: #666; padding-left: 15px;">
+                <td colspan="12" style="font-size: 9px; color: #666; padding-left: 15px;">
                     @if($item->warehouseRow)
                         <strong>Row:</strong> {{ $item->warehouseRow->name }} &nbsp;|&nbsp;
                     @endif

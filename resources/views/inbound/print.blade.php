@@ -28,6 +28,7 @@
     <th style="width: 120px">Vendor Batch</th>
     <th>PO</th>
     <th>IBD</th>
+    <th>MFG / EXP</th>
     <th style="width: 90px" class="right">Units</th>
     <th style="width: 90px" class="right">Pack</th>
     <th style="width: 110px" class="right">Total Qty</th>
@@ -45,6 +46,7 @@
         <td>{{ $it->vendor_batch ?? '-' }}</td>
         <td>{{ $it->po_no ?? '-' }}</td>
         <td>{{ $it->ibd_no ?? '-' }}</td>
+        <td>{{ $it->mfg_date ? \Carbon\Carbon::parse($it->mfg_date)->format('d.m.Y') : '-' }} / {{ $it->expiry_date ? \Carbon\Carbon::parse($it->expiry_date)->format('d.m.Y') : '-' }}</td>
         <td class="right">{{ $it->units_received ?? 0 }}</td>
         <td class="right">{{ $it->pack_size_snapshot ?? 0 }}</td>
         <td class="right">{{ $it->total_quantity ?? 0 }}</td>
@@ -52,7 +54,7 @@
     </tr>
 @empty
     <tr>
-        <td colspan="10" class="center">No items</td>
+        <td colspan="11" class="center">No items</td>
     </tr>
 @endforelse
 </tbody>

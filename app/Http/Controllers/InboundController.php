@@ -212,9 +212,8 @@ class InboundController extends Controller
         ]);
 
         try {
-            DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($request, &$stockIn) {
 
-                // dd($request);
                 /** -----------------------------
                  *  1️⃣ Inbound Header
                  * ----------------------------- */
@@ -338,11 +337,11 @@ class InboundController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Inbound stock added successfully.',
-                    'redirect' => route('inbound.index')
+                    'redirect' => route('inbound.invoice', $stockIn) . '?print=1'
                 ]);
             }
 
-            return redirect()->route('inbound.index')
+            return redirect()->route('inbound.invoice', $stockIn)
                 ->with('success', 'Inbound stock added successfully.');
 
         } catch (\Exception $e) {
