@@ -206,8 +206,8 @@ class InboundController extends Controller
             'shipment_type' => 'nullable|in:manual,auto',
 
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.units_received' => 'required|integer|min:1',
+            'items.*.product_id' => 'nullable|exists:products,id',
+            'items.*.units_received' => 'nullable|integer|min:0',
             'items.*.quality_clearance' => 'nullable|in:pending,approved,rejected',
         ]);
 
@@ -273,6 +273,7 @@ class InboundController extends Controller
              *  3️⃣ Stock Items (Batch Wise) — FIFO Row Auto-Assignment
              * ----------------------------- */
             foreach ($request->items as $item) {
+                if (empty($item['product_id']) || empty($item['units_received'])) continue;
 
                 $product  = Product::findOrFail($item['product_id']);
                 $units    = (int) $item['units_received'];

@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+
     <style>
         .form-label { font-size: 12px; margin-bottom: 2px }
         .form-control, .form-select { font-size: 13px; height: 32px }
@@ -23,7 +25,7 @@
         .qc-select-rejected { background: #f8d7da !important; }
     </style>
 
-    <form method="POST" action="{{ route('inbound.store') }}" id="inboundForm">
+    <form method="POST" action="{{ route('inbound.store') }}" id="inboundForm" autocomplete="off">
         @csrf
 
         {{-- ================= HEADER ================= --}}
@@ -222,13 +224,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Prevent form submit on Enter key in any input except textarea
-            document.getElementById('inboundForm').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                }
-            });
-
             let rowIndex = 0,
                 activeRow = null;
             const products = @json($products);
@@ -247,11 +242,6 @@
 
             /* ADD ROW FUNCTION */
             function addRow() {
-                if (!warehouseSelect.value) {
-                    alert('Select warehouse first');
-                    return;
-                }
-
                 itemsTable.querySelector('tbody').insertAdjacentHTML('beforeend', `
 <tr>
 <td>
@@ -302,6 +292,17 @@
             addRowBtn.onclick = () => {
                 addRow();
             };
+
+            /* Enter key adds new row */
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && e.target.closest('#itemsTable')) {
+                    e.preventDefault();
+                    addRow();
+                }
+            });
+
+            /* Default first row */
+            addRow();
 
             let productDropdown = null;
             let activeInput = null;
