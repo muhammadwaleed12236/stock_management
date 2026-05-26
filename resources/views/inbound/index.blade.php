@@ -226,9 +226,8 @@
                             'Arrived From' => $item->stockIn->arrivedFrom->name ?? '-',
                             'Transporter' => $item->stockIn->transporter->name ?? '-',
 
-                            'PO No' => $item->stockIn->po_no ?? '-',
-                            'IBD No' => $item->stockIn->ibd_no ?? '-',
                             'Shipment No' => $item->stockIn->shipment_no ?? '-',
+                            'Delivery No' => $item->stockIn->delivery_no ?? '-',
                             'STO No' => $item->stockIn->sto_no ?? '-',
 
                             'Shipment Type' => strtoupper($item->stockIn->shipment_type ?? 'MANUAL'),
@@ -245,13 +244,32 @@
                             'Driver Name' => $item->stockIn->driver_name ?? '-',
                             'Driver Mobile' => $item->stockIn->driver_mobile ?? '-',
 
-                            'Delivery No' => $item->stockIn->delivery_no ?? '-',
                             'Dispatched Invoice No' => $item->stockIn->dispatched_invoice_no ?? '-',
                             'Dispatcher Sig' => $item->stockIn->dispatcher_sig ?? '-',
                             'Picker' => $item->stockIn->picker ?? '-',
 
                             'Header Remarks' => $item->stockIn->remarks ?? '-',
                             ];
+
+                            $palletLocationStr = 'Unassigned';
+                            if ($item->warehouse_row_id && $item->pallets_used > 0) {
+                                // Calculate how many pallets are used by earlier items in the same row
+                                $offset = \App\Models\StockInItem::where('warehouse_row_id', $item->warehouse_row_id)
+                                    ->where('id', '<', $item->id)
+                                    ->where('balance_quantity', '>', 0)
+                                    ->sum('pallets_used');
+
+                                $start = $offset + 1;
+                                $end = $offset + $item->pallets_used;
+
+                                if ($start == $end) {
+                                    $palletLocationStr = "Row " . ($item->warehouseRow->row_name ?? '-') . " (Pallet " . $start . ")";
+                                } else {
+                                    $palletLocationStr = "Row " . ($item->warehouseRow->row_name ?? '-') . " (Pallets " . $start . "-" . $end . ")";
+                                }
+                            } elseif ($item->warehouse_row_id) {
+                                $palletLocationStr = "Row " . ($item->warehouseRow->row_name ?? '-');
+                            }
 
                             $itemData = [
 
@@ -262,8 +280,8 @@
 
                             'SAP Batch' => $item->sap_batch ?? '-',
                             'Vendor Batch' => $item->vendor_batch ?? '-',
-                            'IBD#' => $item->ibd_no ?? '-',
-                            'PO' => $item->po_no ?? '-',
+                            'IBD No' => $item->ibd_no ?? '-',
+                            'PO No' => $item->po_no ?? '-',
 
                             'MFG Date' => $item->mfg_date ? \Carbon\Carbon::parse($item->mfg_date)->format('d.m.Y') :
                             '-',
@@ -276,7 +294,7 @@
                             'Total Quantity' => $item->total_quantity ?? 0,
                             'Balance Quantity' => $item->balance_quantity ?? 0,
 
-                            'Use Pallets' => (bool) $item->use_pallets,
+                            'Pallet Location' => $palletLocationStr,
                             'Pallets Used' => $item->pallets_used ?? 0,
 
                             'Sound Stock' => (bool) $item->sound_stock,
@@ -458,16 +476,7 @@
                         <div class="row g-2" id="warehouseInfo"></div>
                     </div>
                 </div>
-                {{-- Warehouse & Location --}}
-                warehouse with location like pallets k kahan rakha howa hai agar os k andar pallets bany hoy hain row wise warna na simpole use palltes bata dyn
 
-                   {{-- Batch & Reference Numbers --}}
-                dobule po ko avoud karyn sirf row mai input mai jo po or details add karyn wo show ho po ki  ibd  or po dono double hai enko aik karna hai
-                {{-- Batch & Reference Numbers --}}
-
-                {{-- Vehicle & Transport --}}
-                delivery no yahan sy utha k shipment k barbar mai rakh dyna hai
-                
                 <div class="card border mb-3">
                     <div class="card-header bg-light border-bottom">
                         <i class="bi bi-upc-scan me-2"></i><strong>Batch & Reference Numbers</strong>
@@ -572,6 +581,7 @@
                 // Warehouse & Location
                 renderSection('warehouseInfo', {
                     'Warehouse': headerData['Warehouse'],
+                    'Pallet Location': itemData['Pallet Location'],
                     'Vendor': headerData['Vendor'],
                     'Arrived From': headerData['Arrived From'],
                     'Transporter': headerData['Transporter']
@@ -581,11 +591,10 @@
                 renderSection('batchInfo', {
                     'SAP Batch': itemData['SAP Batch'],
                     'Vendor Batch': itemData['Vendor Batch'],
-                    'IBD#': itemData['IBD#'],
-                    'PO': itemData['PO'],
-                    'PO No': headerData['PO No'],
-                    'IBD No': headerData['IBD No'],
+                    'PO No': itemData['PO No'],
+                    'IBD No': itemData['IBD No'],
                     'Shipment No': headerData['Shipment No'],
+                    'Delivery No': headerData['Delivery No'],
                     'STO No': headerData['STO No']
                 });
 
@@ -608,7 +617,6 @@
                     'Vehicle Out Time': headerData['Vehicle Out Time'],
                     'Driver Name': headerData['Driver Name'],
                     'Driver Mobile': headerData['Driver Mobile'],
-                    'Delivery No': headerData['Delivery No'],
                     'Dispatched Invoice No': headerData['Dispatched Invoice No']
                 });
 
@@ -619,7 +627,6 @@
                     'Hold Stock': itemData['Hold Stock'],
                     'QC Status': itemData['QC Status'],
                     'Damage Stock': itemData['Damage Stock'],
-                    'Use Pallets': itemData['Use Pallets'],
                     'Pallets Used': itemData['Pallets Used']
                 });
             });
