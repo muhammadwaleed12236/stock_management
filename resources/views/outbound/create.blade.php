@@ -338,8 +338,8 @@ document.addEventListener('click', e => {
     const warehouseSelect = row.querySelector('.warehouse-select');
     warehouseSelect.innerHTML = '<option value="">Loading Stock...</option>';
     
-    // Load all warehouses that have stock for this product
-    fetch(`/outbound/product-stock/${productId}?t=${new Date().getTime()}`)
+    const outboundType = document.getElementById('outboundType')?.value || 'customer';
+    fetch(`/outbound/product-stock/${productId}?t=${new Date().getTime()}&outbound_type=${outboundType}`)
         .then(r => r.json())
         .then(data => {
             if (data.length > 0) {

@@ -157,6 +157,17 @@ class OutboundController extends Controller
             $query->where('warehouse_id', $warehouseId);
         }
 
+        // For customer sales, exclude expired, blocked, and rejected stock
+        $outboundType = $request->query('outbound_type');
+        if ($outboundType === 'customer') {
+            $query->where('block_stock', false)
+                  ->where('quality_clearance', '!=', 'rejected')
+                  ->where(function ($q) {
+                      $q->whereNull('expiry_date')
+                        ->orWhere('expiry_date', '>=', now()->toDateString());
+                  });
+        }
+
         $items = $query->orderBy('warehouse_id')
             ->orderBy('expiry_date')
             ->orderBy('created_at') // FIFO within same expiry
@@ -257,16 +268,39 @@ class OutboundController extends Controller
                     $stoNo = $it['sto_no'] ?? null;
 
                     // Find batches for this product in SPECIFIED warehouse for this item
-                    $batches = StockInItem::where('product_id', $productId)
+                    $batchQuery = StockInItem::where('product_id', $productId)
                         ->where('warehouse_id', $itWarehouseId)
-                        ->where('balance_quantity', '>', 0)
-                        ->orderBy('expiry_date', 'asc')
+                        ->where('balance_quantity', '>', 0);
+
+                    // For customer sales, exclude blocked, rejected, and expired stock
+                    if ($request->outbound_type === 'customer') {
+                        $batchQuery->where('block_stock', false)
+                              ->where('quality_clearance', '!=', 'rejected')
+                              ->where(function ($q) {
+                                  $q->whereNull('expiry_date')
+                                    ->orWhere('expiry_date', '>=', now()->toDateString());
+                              });
+                    }
+
+                    $batches = $batchQuery->orderBy('expiry_date', 'asc')
                         ->orderBy('created_at', 'asc')
                         ->lockForUpdate()
                         ->get();
 
                     if ($batches->isEmpty()) {
-                        throw new \Exception("No stock available for product ID $productId in selected warehouse.");
+                        $productName = Product::find($productId)->name ?? $productId;
+
+                        // Check if any stock exists before filtering
+                        $anyStockExists = StockInItem::where('product_id', $productId)
+                            ->where('warehouse_id', $itWarehouseId)
+                            ->where('balance_quantity', '>', 0)
+                            ->exists();
+
+                        if ($anyStockExists && $request->outbound_type === 'customer') {
+                            throw new \Exception("Cannot dispatch product '{$productName}'. Available stock is expired, blocked, or rejected.");
+                        }
+
+                        throw new \Exception("No valid stock available for product '{$productName}' in selected warehouse.");
                     }
 
                     $totalUnitsForThisItem = (int) $it['units_dispatch'];
@@ -285,11 +319,8 @@ class OutboundController extends Controller
                         $unitsToTake = min($unitsRemaining, $batchAvailableUnits);
                         $qtyToTake = $unitsToTake * $pack;
 
-                        // Deduct from source batch
-                        DB::statement(
-                            'UPDATE stock_in_items SET balance_quantity = balance_quantity - ? WHERE id = ?',
-                            [$qtyToTake, $batch->id]
-                        );
+                        // Deduct from source batch using Eloquent (ensures transaction participation)
+                        $batch->decrement('balance_quantity', $qtyToTake);
 
                         // Proportional pallets for this batch deduction
                         $palletsToTake = 0;
@@ -302,6 +333,12 @@ class OutboundController extends Controller
                             }
                         }
                         $palletsDistributed += $palletsToTake;
+
+                        // Decrement pallets_used from source batch if applicable
+                        if ($palletsToTake > 0 && $batch->pallets_used > 0) {
+                            $palletsToDeduct = min($palletsToTake, $batch->pallets_used);
+                            $batch->decrement('pallets_used', $palletsToDeduct);
+                        }
 
                         /* ===== CREATE OUTBOUND ITEM ===== */
                         StockOutItem::create([
@@ -334,21 +371,38 @@ class OutboundController extends Controller
                                 ]);
                             }
 
-                            StockInItem::create([
-                                'stock_in_id'        => $inbound->id,
-                                'product_id'         => $batch->product_id,
-                                'warehouse_id'       => $request->to_warehouse_id,
-                                'sap_batch'          => $batch->sap_batch,
-                                'vendor_batch'       => $batch->vendor_batch,
-                                'mfg_date'           => $batch->mfg_date,
-                                'expiry_date'        => $batch->expiry_date,
-                                'units_received'     => $unitsToTake,
-                                'pack_size_snapshot' => $pack,
-                                'total_quantity'     => $qtyToTake,
-                                'balance_quantity'   => $qtyToTake,
-                                'po_no'              => $userPo ?: $batch->po_no,
-                                'ibd_no'             => $userIbd ?: $batch->ibd_no,
-                            ]);
+                            // Use WarehouseRowFifo to assign proper rows in destination warehouse
+                            $splits = \App\Services\WarehouseRowFifo::assign(
+                                (int) $request->to_warehouse_id,
+                                $palletsToTake,
+                                $unitsToTake,
+                                $pack
+                            );
+
+                            foreach ($splits as $split) {
+                                StockInItem::create([
+                                    'stock_in_id'        => $inbound->id,
+                                    'product_id'         => $batch->product_id,
+                                    'warehouse_id'       => $request->to_warehouse_id,
+                                    'warehouse_row_id'   => $split['warehouse_row_id'],
+                                    'sap_batch'          => $batch->sap_batch,
+                                    'vendor_batch'       => $batch->vendor_batch,
+                                    'mfg_date'           => $batch->mfg_date,
+                                    'expiry_date'        => $batch->expiry_date,
+                                    'units_received'     => $split['units'],
+                                    'pack_size_snapshot' => $pack,
+                                    'total_quantity'     => $split['qty'],
+                                    'balance_quantity'   => $split['qty'],
+                                    'pallets_used'       => $split['pallets'] > 0 ? $split['pallets'] : null,
+                                    'use_pallets'        => $split['pallets'] > 0,
+                                    'quality_clearance'  => $batch->quality_clearance ?? 'approved',
+                                    'sound_stock'        => $batch->sound_stock ?? true,
+                                    'block_stock'        => $batch->block_stock ?? false,
+                                    'hold_stock'         => $batch->hold_stock ?? false,
+                                    'po_no'              => $userPo ?: $batch->po_no,
+                                    'ibd_no'             => $userIbd ?: $batch->ibd_no,
+                                ]);
+                            }
                         }
 
                         $unitsRemaining -= $unitsToTake;
