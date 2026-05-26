@@ -287,7 +287,7 @@
                             '-',
                             'Expiry Date' => $item->expiry_date ?
                             \Carbon\Carbon::parse($item->expiry_date)->format('d.m.Y') : '-',
-                            'Days in Warehouse' => $item->created_at ? $item->created_at->diffInDays(now()) : 0,
+                            'Days in Warehouse' => $item->created_at ? (int) $item->created_at->diffInDays(now()) : 0,
 
                             'Units Received' => $item->units_received ?? 0,
                             'Pack Size' => $item->pack_size_snapshot ?? 0,
