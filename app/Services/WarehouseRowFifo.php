@@ -50,10 +50,12 @@ class WarehouseRowFifo
         int   $totalUnits,
         float $packSize
     ): array {
-        // Load rows ordered by name (Row A < Row B, Row 1 < Row 2 …)
+        // Load rows and sort them using natural sorting
+        // This ensures "row 10" comes after "row 2", and "row1" comes before "row 2" despite spaces
         $rows = WarehouseRow::where('warehouse_id', $warehouseId)
-            ->orderBy('row_name')
-            ->get();
+            ->get()
+            ->sortBy('row_name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         if ($rows->isEmpty() || $palletsNeeded <= 0) {
             return [[
