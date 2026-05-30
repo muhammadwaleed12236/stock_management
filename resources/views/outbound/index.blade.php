@@ -293,11 +293,11 @@
                                       method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger"
+                                    <!-- <button class="btn btn-sm btn-outline-danger"
                                             onclick="return confirm('Delete outbound?')"
                                             title="Delete">
                                         <i class="bi bi-trash"></i>
-                                    </button>
+                                    </button> -->
                                 </form>
                             </div>
                         </td>
